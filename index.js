@@ -6,6 +6,7 @@
 // }
 // console.log(matrix);
 
+//temp matrix
 const matrix = [
   [0, 0, 1, 9, 8, 4, 7, 6, 0],
   [6, 0, 0, 0, 5, 7, 0, 0, 0],
