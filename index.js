@@ -52,23 +52,40 @@ updateMatrix = (e) => {
 }
 
 solveSudoku = (row, col) => {
-
-  if (col === 9) {
+  // console.log(row, col)
+  if (row === 8 && col === 8) {
+    console.log(matrix);
+  }
+  if (col > 8) {
     col = 0;
     row++;
   }
-  if (row === 9 && col === 9) {
+  if (row > 8 && col > 8) {
+    // console.log(matrix);
     return matrix;
   }
   if (matrix[row][col] === 0) {
-    let options = getOptions(row, col);
-    for (let i = 0; i < options.length; i++) {
-      matrix[row][col] = options[i];
-      if (checkRow(row) && checkCol(col) && checkThreeByThree(row, col)) {
-        solveSudoku(row, col+1);
-      }
+    let possibleOptions = getOptions(row , col);
+    if (!possibleOptions.size) {
+      return false;
     }
+    console.log(possibleOptions)
+    possibleOptions.forEach((option) => {
+      matrix[row][col] = option;
+      let complete = solveSudoku(row, col + 1)
+      if (complete) {
+        return true;
+      } else {
+        matrix[row][col] = 0;
+      }
+    })
   }
+  let complete = solveSudoku(row, col + 1)
+  if (complete) {
+    // console.log(matrix);
+    return matrix;
+  }
+  return false;
 }
 
 const addEventListener = (table) => {
@@ -86,7 +103,31 @@ const init = () => {
 init();
 
 function getOptions(row, col) { //iterate through column, rows, and 3 x 3 and generate a list of options
+  const possibleOptions = new Set();
+  for (let i = 1; i <= 9; i++) {
+    possibleOptions.add(i);
+  }
+  for (let c = 0; c < 9; c++) {
+    if (possibleOptions.has(matrix[row][c])) {
+      possibleOptions.delete(matrix[row][c]);
+    }
+  }
+  for (let r = 0; r < 9; r++) {
+    if (possibleOptions.has(matrix[r][col])) {
+      possibleOptions.delete(matrix[r][col]);
+    }
+  }
 
+  let r = findIndex(row);
+  let c = findIndex(col);
+  for (let i = r; i < r+3; i++) {
+    for (let j= c; j < c+3; j++) {
+      if (possibleOptions.has(matrix[i][j])) {
+        possibleOptions.delete(matrix[i][j]);
+      }
+    }
+  }
+  return possibleOptions;
 }
 
 
@@ -118,13 +159,11 @@ function checkThreeByThree(row, col) {
   const set = new Set();
   let r = findIndex(row);
   let c = findIndex(col);
-  console.log(r, c)
   for (let i = r; i < r+3; i++) {
     for (let j= c; j < c+3; j++) {
       if (parseInt(matrix[i][j]) > 0 && !set.has(matrix[i][j])) {
         set.add(matrix[i][j]);
       } else if (set.has(matrix[i][j])) {
-        console.log(set)
         return false;
       }
     }
